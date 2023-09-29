@@ -16,17 +16,24 @@ function load(){
     }else{
         document.getElementById("header-hint").innerHTML="笔记 - 无法加载标题";
     }
-
+    // CodeMirror.fromTextArea(document.getElementsByClassName("codeTextarea")[0], {
+    //     lineNumbers: true,
+    //     mode: "text/x-csharp"
+    // });
     loadCodeHighlight();
+    
 }
 function loadCodeHighlight(){
+    console.log("d");
     var elements = document.getElementsByClassName("codeTextarea");
-    for(var a in elements){
-        CodeMirror.fromTextArea(elements[a], {
+    for(var a of elements){
+        var cm = CodeMirror.fromTextArea(a, {
             lineNumbers: true,
-            mode: "text/x-csharp"
-            
+            mode: "text/x-csharp",
+            smartIndent: true,
+            lineWrapping: true,
         });
+        cm.refresh();
     }
 }
 function getUrlParams(url) {
