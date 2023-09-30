@@ -1,3 +1,5 @@
 yield.html|C# yield关键字 用法|2023.9.29
 stack.html|C# Stack类 用法|2023.9.29
 BitmapBasic.html|C# Bitmap类 基本用法|2023.8
+delegate.html|C# 委托 详解|2023.5.22
+event.html|C# 事件 详解|2023.6.5
