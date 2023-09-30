@@ -38,7 +38,7 @@ function loadCodeHighlight(){
         cm.refresh();
     }
 
-    var elements = document.getElementsByClassName("ouputTextarea");
+    var elements = document.getElementsByClassName("outputTextarea");
     for(var a of elements){
         var cm = CodeMirror.fromTextArea(a, {
             lineNumbers: true,

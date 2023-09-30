@@ -31,7 +31,7 @@ function createButton(url, title, time){
         var url = "";
         url = "../../static/view/model.html";
         url += "?" + 
-        "url=" + "../../lessons/ch/content/" + btn.getAttribute("url") + "&" + 
+        "url=" + "../../smalltalk/content/" + btn.getAttribute("url") + "&" + 
         "title=" + btn.getAttribute("title") + "&" + 
         "time=" + btn.getAttribute("time");
 
