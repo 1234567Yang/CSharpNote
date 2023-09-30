@@ -19,6 +19,7 @@ function setButton(text){
         var param = sg.split('|');
         createButton(param[0], param[1], param[2]);
     }
+    document.getElementById("hint").innerHTML = "loaded all information.";
 }
 function createButton(url, title, time){
     var btn = document.createElement("BUTTON");
