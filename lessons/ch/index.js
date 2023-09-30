@@ -29,9 +29,9 @@ function createButton(url, title, time){
     btn.setAttribute("time", time);
     btn.onclick = function(){
         var url = "";
-        url = "/static/view/model.html";
+        url = "../../static/view/model.html";
         url += "?" + 
-        "url=" + "/lessons/ch/" + btn.getAttribute("url") + "&" + 
+        "url=" + "../../lessons/ch/" + btn.getAttribute("url") + "&" + 
         "title=" + btn.getAttribute("title") + "&" + 
         "time=" + btn.getAttribute("time");
 
