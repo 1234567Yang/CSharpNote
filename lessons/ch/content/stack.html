@@ -1,0 +1,45 @@
+<p>水一期，本来不想学Stack的，但是看到@StarAdmire 写的超级计算器那个，发现用到了好多栈，就顺便学了，没想到就几个方法。</p>
+<a href="https://learn.microsoft.com/en-us/dotnet/api/system.collections.stack?view=net-7.0">微软文档Stack官方链接</a>
+<p>Queue就是堆</p>
+<del>代码就一点，说实话感觉ArrayList比这个好用吧？而且都是从ICollection这个接口出来的</del>
+<br>
+<b>queue是先进先出的，stack是先进后出的，这两个各有各的使用方法，而你所说的觉得ArrayList比这些好用，这是错误的，因为不存在谁比谁好用，这是要根据实际情况来的。</b>
+<p>
+    在C#中，Stack类实现了ICollection接口，而不是ICollection<T>接口。这是一个非泛型的接口，它并不包含Add和Remove方法。这就是为什么Stack可以实现ICollection接口，但不实现ICollection<T>接口的原因。
+
+    顺便补充一点：ICollection可以修改数据长度，IEnumerable不可以（仅枚举）
+</p>
+<p>代码实例：</p>
+<textarea class="codeTextarea">
+using System;
+using System.Collections;
+using System.Collections.Generic;
+ 
+namespace Application
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Stack stack = new Stack();
+            stack.Push(66666);
+            stack.Push("vevd");
+ 
+            stack.Pop();
+            Console.WriteLine(stack.Peek());
+ 
+            foreach(var i in stack){
+                Console.WriteLine(i);
+            }
+            Console.WriteLine("***End***");
+        }
+    }
+}
+</textarea>
+<p>输出：</p>
+<textarea class="outputTextarea">
+mono /tmp/0THIYyfVof.exe
+66666
+66666
+***End***
+</textarea>
