@@ -76,3 +76,26 @@ C:\C#sourceCode\Event\Event\bin\Debug\net6.0\Event.exe (进程 10128)已退出�
 要在调试停止时自动关闭控制台，请启用“工具”->“选项”->“调试”->“调试停止时自动关闭控制台”。
 按任意键关闭此窗口. . .
 </textarea>
+
+<br>
+<br>
+
+<p>事件的简化声明：</p>
+<textarea class="codeTextarea">
+private OrderEventHandler orderEvent;
+public event OrderEventHandler Order
+{
+    add
+    {
+        this.orderEvent += value;
+    }
+    remove
+    {
+        this.orderEvent -= value;
+    }
+}
+</textarea>
+<p>把上面这一段换成下面这一段：</p>
+<textarea class="codeTextarea">
+public event OrderEventHandler Order;
+</textarea>
