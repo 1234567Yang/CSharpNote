@@ -1,6 +1,7 @@
 :root {
     --head-height: 50px;
     --footer-height: 50px;
+    --content-font-size: 20px;
 }
 *{
     font-family: 'Courier New', 'Times New Roman', Courier, monospace;
@@ -33,7 +34,7 @@ html, body {
     position: relative;
     display: flex;
 
-    font-size: 35px;
+    font-size: 30px;
 }
 #header-img{
     position: relative;
@@ -44,8 +45,29 @@ html, body {
 .content{
     margin-top: calc(var(--head-height) + 50px);
     position: relative;
-    font-size: 20px;
+    font-size: var(--content-font-size);
     min-height: 100%;
+}
+.CodeMirror {
+    font-size: calc(var(--content-font-size) - 4px);
+    border: 1px solid #eee;
+    margin: 8px;
+}
+code{
+    position: relative;
+    top: -1.6px;
+    border-radius: 5px;
+    background-color: rgb(230,230,230);
+    border-width: 1.2px;
+    border-color: rgb(150,150,150);
+    border-style: solid;
+    margin-left: 8px;
+    margin-right: 8px;
+    font-size: calc(var(--content-font-size) - 3px);
+}
+output{
+    background-color: rgb(50,50,50);
+    color: white;
 }
 .footer{
     position: relative;

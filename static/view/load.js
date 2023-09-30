@@ -2,8 +2,10 @@ function load(){
     console.log(document.URL);
 
     var params = getUrlParams(document.URL);
-    var html = params["u"];
-    var title = params["t"];
+    var html = params["url"];
+    console.log(html);
+    var title = params["title"];
+    var time = params["time"];
 
 
     if(html != undefined){
@@ -24,7 +26,6 @@ function load(){
     
 }
 function loadCodeHighlight(){
-    console.log("d");
     var elements = document.getElementsByClassName("codeTextarea");
     for(var a of elements){
         var cm = CodeMirror.fromTextArea(a, {
@@ -33,6 +34,20 @@ function loadCodeHighlight(){
             smartIndent: true,
             lineWrapping: true,
         });
+        cm.setSize("auto", "auto");
+        cm.refresh();
+    }
+
+    var elements = document.getElementsByClassName("ouputTextarea");
+    for(var a of elements){
+        var cm = CodeMirror.fromTextArea(a, {
+            lineNumbers: true,
+            mode: "text/x-csharp",
+            smartIndent: true,
+            lineWrapping: true,
+            theme: "ambiance"
+        });
+        cm.setSize("auto", "auto");
         cm.refresh();
     }
 }
