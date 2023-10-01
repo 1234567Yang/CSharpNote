@@ -14,6 +14,9 @@ public void tesActFu(string t1, int t2)
 }
 </textarea>
 
+
+
+<br><br>
 <ul>
     <li><code>Func</code>委托：有返回值</li>
     <code>Func&lt;返回值，参数1，参数2，参数3...&gt; fun2 = new Func&lt;返回值，参数1，参数2，参数3……&gt;(程序名);</code>
@@ -31,10 +34,13 @@ class WarpFactroy
     }
 }
 
-
 Func&lt;Product&gt; fun2 = new Func&lt;Product&gt;(TheproductFactory.MakeToyCar);
 Box box2 = ThewarpFactroy.WarpPoroduct(fun2);
 </textarea>
+
+
+
+<br><br>
 <ul>
     <li><code>Delegate</code>：委托本尊</li>
 </ul>
@@ -63,12 +69,14 @@ public double Sub(double x, double y)
 }
 </textarea>
 
+
+
+<br><br>
 <ul>
     <li>多播委托：</li>
 </ul>
 
-
-<b>好几个子程序封装成一个，参数返回值必须一致</b>
+<b>好几个子程序封装成一个，参数返回值必须一致。</b>
 
 <p>例子：</p>
 <textarea class="codeTextarea">
@@ -103,11 +111,17 @@ C:\C#sourceCode\Delegate\Delegate\bin\Debug\net6.0\Delegate.exe (进程 16844)�
 按任意键关闭此窗口. . .
 </textarea>
 
+
+
+<br><br>
 <ul>
     <li>好莱坞方法：</li>
 </ul>
 <p>好莱坞法则（the Hollywood Principle）是一种软件设计原则，它的原文是“Don’t call me; I’ll call you.”，意思是一个工具应该安排好自己的通知机制，当需要通知时，由工具主动通知使用者，而不是使用者不停地轮询工具。这个原则在通知机制中应用广泛，也被称为“好莱坞原则”</p>
 
+
+
+<br><br>
 <ul>
     <li><code>BeginInvoke</code>:异步执行</li>
 </ul>
@@ -146,6 +160,9 @@ class Program
 }
 </textarea>
 
+
+
+<br><br>
 <ul>
     <li><code>interface</code>:接口</li>
 </ul>
