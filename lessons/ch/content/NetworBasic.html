@@ -1,0 +1,97 @@
+<p>从最基础的开始：</p>
+
+
+
+<br><br>
+<ul>
+    <li>先看一个<code>Uri</code>类：</li>
+</ul>
+
+<ul>
+    <li>“/”：表示根目录。</li>
+    <i>补充：前几天刚犯了个错误，在创建Github Page的时候千万不要用这个根目录，因为比如<code>someone.github.io/repo/index.html</code>这个地方根目录是<code>someone.github.io</code>，如果你想写成<code>/1.png</code>，那路径就成了<code>someone.github.io/1.png</code>，会提示404。<del>有时候一脑残就容易写出来这种东西。</del></i>
+    <li>“./”：表示当前目录，也可以去掉“./”直接写文件名或者下级目录，比如“1.txt”。</li>
+    <li>“../”：表示上级目录。</li>
+</ul>
+
+<textarea class="codeTextarea">
+public static void BaseUriExample()
+{
+    Uri uri = new Uri(@"https://www.example.com/examples/num1/detail.html");
+    Console.WriteLine(new Uri(uri, @"../../a.txt").AbsoluteUri);
+    Console.WriteLine(uri.Host);
+}
+</textarea>
+<p>输出：</p>
+<textarea class="outputTextarea">
+https://www.example.com/a.txt
+www.example.com
+
+C:\C#sourceCode\TCPExample\TCPExample\bin\Debug\net6.0\TCPExample.exe (进程 19424)已退出，代码为 0。
+要在调试停止时自动关闭控制台，请启用“工具”->“选项”->“调试”->“调试停止时自动关闭控制台”。
+按任意键关闭此窗口. . .
+</textarea>
+
+
+
+<br><br>
+<ul>
+    <li>然后我们看看<code>Dns</code>的一系列操作：</li>
+</ul>
+
+<p><code>GetHostAddresses</code>的用法：</p>
+<textarea class="codeTextarea">
+public static void getHostsExample()
+{
+    IPAddress[] address = Dns.GetHostAddresses(Dns.GetHostName());
+    foreach (IPAddress ip in address)
+    {
+        if (ip.AddressFamily == AddressFamily.InterNetwork)
+        {
+            Console.WriteLine(ip.ToString());
+            //会输出你所有的IPv4地址。
+        }
+    } 
+}
+</textarea>
+<ul>
+    <li><code>AddressFamily.InterNetwork</code>表示此IP为IPv4。</li>
+    <li><code>AddressFamily.InterNetworkV6</code>表示此IP为IPv6类型。</li>
+</ul>
+<br>
+<p><code>GetHostEntry</code>的用法：</p>
+<textarea class="codeTextarea">
+public static void GetHostEntryExample()
+{
+    foreach (var ip in Dns.GetHostEntry("www.google.com").AddressList)
+    {
+        Console.WriteLine(ip.ToString());
+    }
+    foreach (var ip in Dns.GetHostEntry("example.org").Aliases)
+    {
+        Console.WriteLine(ip.ToString());
+    }
+    Console.WriteLine(Dns.GetHostEntry("www.baidu.com").HostName);
+}
+</textarea>
+<p>输出：</p>
+<textarea class="outputTextarea">
+2607:f8b0:4007:809::2004
+142.250.217.132
+www.wshifen.com
+</textarea>
+
+<p>注意：第二个<code>Aliases</code>没有输出，所以实际上只是输出了<code>AddressList</code>和<code>HostName</code>。</p>
+<b>注意：网址必须是<code>www.example.com</code>这样的，网址前面不要加<code>http</code>，否则抛出异常。</b>
+
+<ul>
+    <li><code>GetHostEntry</code>：响应的IP。</li>
+    <del>吐槽：学校屏蔽的DNS真多，中文网站基本全部屏蔽掉了：我们正在讨论言论自由，请闭嘴。</del>
+    <li><code>Aliases</code>：正如同New Bing所言：</li>
+    <blockquote cite="https://chat.bing.com/">
+        在C#中，Dns.GetHostEntry()方法返回的Aliases属性是一个字符串数组，包含了主机的DNS别名。这些别名通常用于网络负载均衡或故障转移。例如，假设我们有一个服务器，它的主机名是"server1.example.com"。为了负载均衡，我们可能会设置多个别名指向这台服务器，比如"web.example.com"、"mail.example.com"等等。这样，用户就可以通过不同的主机名访问同一台服务器。然而，请注意，这并不意味着所有的主机名都会作为别名返回。例如，“www.google.com”、"mail.google.com"和"docs.google.com"都是Google的主机名，但它们并不是彼此的别名。每个主机名都可能指向不同的服务器或服务。
+    </blockquote>
+    <li><code>HostName</code>：主机名，就是你电脑的名字，但是一般Server的主机名就是它的网址。</li>
+    <i>至于为什么百度的<code>HostName</code>不是<code>www.baidu.com</code>，网上搜了一下，也没大看懂，各说各的，有的说是<a href="https://www.cnblogs.com/hsms/p/15886707.html">域名保护壳的</a>，有的说是<a href="https://www.zhihu.com/question/20100901">百度当初竞价的</a>。</i>
+</ul>
+

@@ -1,0 +1,149 @@
+<ul>
+    <li>现在正式进入<code>Socket</code>之连接发送篇：</li>
+</ul>
+<b>注意：这里学习难度较大，因为你要同时理解客户端和服务器，如果学过其它编程语言<del>（比如我之前学的易语言）</del>，服务器也可以先用其它编程语言写。</b>
+<textarea class="codeTextarea">
+public static void SocketConnectExample()
+{
+
+    using (Socket sk = new Socket(SocketType.Stream,ProtocolType.Tcp))
+    {
+        //Uri uri = new Uri(@"http://192.168.0.195");
+        IPAddress ip = IPAddress.Parse("192.168.56.1");
+        try {
+            sk.Connect(ip, 13126);
+        }catch(Exception ex) {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+        
+        //CancellationToken cancellationToken = new CancellationToken();
+        //sk.ConnectAsync(ip, 13126, cancellationToken);
+
+        // 准备要发送的数据
+        string data = "nmfdvdjiv nevon h iusavjfsv kak jnvk sajknjvknjvs nsv nkvnv  nv nvcnv cnv  nv nvc nvcs nnv s";
+        byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+
+        // 发送数据
+        int bytesSent = 0;
+        while (bytesSent < dataBytes.Length)
+        {
+            bytesSent += sk.Send(dataBytes, bytesSent, dataBytes.Length - bytesSent, SocketFlags.None);
+        }
+
+
+        // 关闭连接
+        sk.Shutdown(SocketShutdown.Both);
+        sk.Close();
+    }
+}
+</textarea>
+<p>解析：</p>
+<p>我们先定义了一个<code>IPAddress</code>，并且把它用<code>IPAddress.Parse</code>方法解析了一下，<code>192.168.56.1</code>就是我的本地IPv4地址，不知道的人可以打开cmd，输入<code>ipconfig</code>来查看，或者用之前我们看到的<code>Dns.GetHostAddresses</code>。</p>
+<p>然后我们用了<code>Socket.Connect</code>方法，连接到了刚刚的ip，端口为<code>13126</code>。</p>
+<blockquote cite="https://zh.wikipedia.org/zh-cn/TCP/UDP%E7%AB%AF%E5%8F%A3%E5%88%97%E8%A1%A8">计算机之间依照互联网传输层TCP/IP协议的协议通信，不同的协议都对应不同的端口。</blockquote>
+<blockquote cite="https://stackoverflow.com/questions/36796183/why-is-the-maximum-port-range-65535-in-the-tcp-ip-suite">查看<a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol#TCP_segment_structure">TCP 段的数据包格式</a>。端口标识符是无符号的 16 位整数，这意味着您可以输入的最大数字是 216-1 = 65535。</blockquote>
+<p>如果连接成功，<code>try</code>没有出现异常，就用<code>Encoding.UTF8.GetBytes(data);</code>把数据转成<code>byte[]</code>类型的一个变量，并依次用<code>Socket.Send</code>方法循环发送到服务器。</p>
+<p><code>SocketFlags</code>一般都填<code>none</code>。具体的类型参考可以看看微软<a href="https://learn.microsoft.com/zh-cn/dotnet/api/system.net.sockets.socketflags?view=net-7.0">官方文档</a>。在这其中发现了个比较好玩的东西：<code>DontRoute</code>，不使用路由器，如果在本地和目标地址之间有路由器，数据将会丢失。</p>
+<blockquote cite="https://www.cloudflare.com/learning/network-layer/what-is-routing/">
+路由器参考内部路由表来决定如何沿网络路径路由数据包。路由表记录数据包到达路由器负责的每个目标时应采用的路径。想想火车时刻表，火车乘客咨询以决定赶哪列火车。路由表就是这样，但用于网络路径而不是火车。
+路由器的工作方式如下：当路由器收到数据包时，它会读取数据包的标头*以查看其预期目的地，就像火车售票员检查乘客的车票以确定他们应该乘坐哪列火车一样。然后，它根据其路由表中的信息确定数据包的路由位置。
+路由器每秒使用数百万个数据包执行此操作数百万次。当数据包传输到其目的地时，它可能会被不同的路由器路由多次。
+</blockquote>
+<p>发送完数据之后就用<code>Socket.Shutdown</code>方法，其中参数还是一个<code>SocketShutdown</code>的枚举，可以选择<code>Receive</code>（禁用接收）、<code>Send</code>（禁用发送）或<code>Both</code>（都禁用）。具体可以在微软<a href="https://learn.microsoft.com/zh-cn/dotnet/api/system.net.sockets.socketshutdown?view=net-7.0">官方文档</a>看看。</p>
+<p>最后用<code>Socket.Shutdown</code>方法关闭，理论上用了<code>using (Socket sk = new Socket(SocketType.Stream,ProtocolType.Tcp))</code>就可以不用管了，但是个人习惯还是关闭一下。</p>
+
+
+
+<br><br>
+<ul>
+    <li><code>Socket</code>之接收送篇：</li>
+</ul>
+
+<textarea class="codeTextarea">
+public static void SocketReceiveExample()
+{
+    using (Socket sk = new Socket(SocketType.Stream, ProtocolType.Tcp))
+    {
+        IPAddress ip = IPAddress.Parse("192.168.56.1");
+        try
+        {
+            sk.Connect(ip, 13126);
+
+            // Create a buffer to receive incoming data
+            byte[] buffer = new byte[1024];
+            int receivedDataLength = sk.Receive(buffer);
+
+            // Convert byte data to a string
+            string data = Encoding.ASCII.GetString(buffer, 0, receivedDataLength);
+            Console.WriteLine("Received Data: " + data);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+    }
+}
+</textarea>
+<p>如果服务器没有发送数据，<code>Receive</code>会卡在那里。</p>
+<p>刚刚测试了一下，服务器在客户端调用<code>Receive</code>之前发送的数据也会被<code>Receive</code>接收，而不是丢失，测试的方法也比较简单粗暴，直接在<code>Receive</code>前面加上个<code>Thread.Sleep(10000);</code>，然后在延时的时候趁机发送。如果发送了两次，<code>Receive</code>方法还会粘包。比如：你在<code>Receive</code>方法调用之前服务器发送了两次<code>hellooooooo</code>，那么在客户端调用<code>Receive</code>方法的时候显示的就会是<code>hellooooooohellooooooo</code>。</p>
+
+
+<br><br>
+<ul>
+    <li>传输大文件测试：</li>
+</ul>
+<p>学完之后写的，当时没想到怎么处理，实际上在包头部分加上数据长度，包尾部分再加上<code>END</code>，然后判断，应该就不会出现数据不完整/粘包的现象。写的时候没在包头部分加上数据长度。</p>
+
+<textarea class="codeTextarea">
+public static void SocketReceiveBigFileExample()
+{
+    using (Socket sk = new Socket(SocketType.Stream, ProtocolType.Tcp))
+    {
+        IPAddress ip = IPAddress.Parse("192.168.56.1");
+        try
+        {
+            sk.Connect(ip, 13126);
+
+            // Create a buffer to receive incoming data
+            byte[] buffer = new byte[1024];
+            int receivedDataLength = 0;
+            
+            FileStream file = new FileStream("a.txt", FileMode.Append);
+            
+            while((receivedDataLength = sk.Receive(buffer)) > 0)
+            {
+                
+                //Console.WriteLine(111);
+                Console.WriteLine(Encoding.ASCII.GetString(buffer, receivedDataLength - 3, 3));
+                if (Encoding.ASCII.GetString(buffer, receivedDataLength - 3, 3) == "END")
+                {
+                    file.Write(buffer.Take(receivedDataLength).Take(receivedDataLength - 3).ToArray());
+                    Console.WriteLine("END - break");
+
+                    Process.Start("explorer.exe", @"a.txt"); //******
+                    break;
+                }
+
+                file.Write(buffer.Take(receivedDataLength).ToArray());
+
+
+                buffer = new byte[1024];
+            }
+            file.Close();
+            file.Dispose();
+
+            // Convert byte data to a string
+            string data = Encoding.ASCII.GetString(buffer, 0, receivedDataLength);
+            Console.WriteLine("Received Data: " + data);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+    }
+}
+</textarea>
+<p>看看即可，不需要过多的理解。</p>
