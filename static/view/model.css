@@ -65,9 +65,20 @@ code{
     margin-right: 8px;
     font-size: calc(var(--content-font-size) - 3px);
 }
-output{
-    background-color: rgb(50,50,50);
-    color: white;
+blockquote{
+    position: relative;
+    border-width: 2px;
+    border-color: rgb(150,150,150);
+    border-style: dashed;
+}
+blockquote::before{
+    content: "";
+    position: absolute;
+    width: 5px;
+    height: 100%;
+    background-color: rgb(150,150,150);
+
+    margin-left: -20px;
 }
 .footer{
     position: relative;
