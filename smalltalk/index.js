@@ -29,7 +29,7 @@ function createButton(url, title, time){
     btn.setAttribute("time", time);
     btn.onclick = function(){
         var url = "";
-        url = "../../static/view/model.html";
+        url = "../static/view/model.html";
         url += "?" + 
         "url=" + "../../smalltalk/content/" + btn.getAttribute("url") + "&" + 
         "title=" + btn.getAttribute("title") + "&" + 
