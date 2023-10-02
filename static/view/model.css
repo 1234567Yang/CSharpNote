@@ -80,6 +80,21 @@ blockquote::before{
 
     margin-left: -20px;
 }
+.img{ /*img class*/
+    position: relative;
+}
+.imgboxer{
+    position: relative;
+    display: flex;
+    justify-content:center;
+    flex-wrap: wrap;
+    /*
+    border-radius: 5px;
+    border-color: rgb(150,150,150);
+    border-style: solid;
+    border-width: 1px;
+    */
+}
 .footer{
     position: relative;
     margin-top: calc(var(--footer-height) * -1px);
