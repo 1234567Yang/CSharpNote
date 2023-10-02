@@ -1,0 +1,20 @@
+<ul>
+    <li>首先学习<code>Socket</code>之连接发送篇：</li>
+</ul>
+<textarea class="codeTextarea">
+//在class下：
+public static Socket server;
+
+
+server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+IPAddress hostIP = IPAddress.Parse("192.168.56.1");
+IPEndPoint ep = new IPEndPoint(hostIP, 13126);
+server.Bind(ep);
+
+server.Listen(10); //第一个参数：最大连接数
+</textarea>
+<p>解析：</p>
+<p><code>AddressFamily</code>指定 Socket 类的实例可以使用的寻址方案，其中<code>InterNetwork</code>表示<code>Socket</code>连接到另一个端点时，期待的是IPv4的地址。具体可参考微软<a href="https://learn.microsoft.com/zh-cn/dotnet/api/system.net.sockets.addressfamily?view=net-6.0">官方文档</a>。</p>
+<p><code>SocketType</code>就是类型，Stream类型的没有边界，所以会出现粘包的问题，需要手动分包。听说<code>Seqpacket</code>一些情况更好用（不粘包），但是<a href="https://stackoverflow.com/a/10109076">Windows竟然没有默认支持</a>。</p>
+<i>推荐一个：<a href="https://zhuanlan.zhihu.com/p/387256713">处理TCP粘包问题的一个解析。</a></i>
+<p><code>ProtocolType</code>指定<code>Socket</code>支持的协议。</p>
