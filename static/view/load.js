@@ -1,17 +1,13 @@
 function load(){
-    console.log(document.URL);
-
     var params = getUrlParams(document.URL);
-    var html = params["url"];
-    console.log(html);
+    var path = params["path"];
+    var fileName = params["filename"];
     var title = params["title"];
     var time = params["time"];
-
-
-    if(html != undefined){
-        changeContent(html);
+    if(path != undefined && fileName!=undefined){
+        changeContent(path, fileName);
     }else{
-        document.getElementById("info").innerHTML = "无法加载html, html == undifined";
+        document.getElementById("info").innerHTML = "无法加载html, path != undefined && fileName!=undefined";
     }
     if(title != undefined){
         document.getElementById("header-hint").innerHTML="笔记 - " + title;
@@ -23,7 +19,7 @@ function load(){
     //     mode: "text/x-csharp"
     // });
     loadCodeHighlight();
-    
+    loadImage(path, fileName);
 }
 function loadCodeHighlight(){
     var elements = document.getElementsByClassName("codeTextarea");
@@ -51,6 +47,14 @@ function loadCodeHighlight(){
         cm.refresh();
     }
 }
+function loadImage(path, fileName){
+    var elements = document.getElementsByClassName("img");
+    for(var a of elements){
+        console.log("***********" + a.src);
+        a.src = path + "/" + "image" + "/" + fileName + "/" + a.src.substring(a.src.lastIndexOf("/") + 1);
+        a.outerHTML = "<div class='imgboxer'>" + a.outerHTML + "<div style='position:relative;width:100%;'></div>" + "<span style='color:rgb(150,150,150)'>" + a.alt + "</span>" + "</div>";
+    }
+}
 function getUrlParams(url) {
 	let urlStr = url.split('?')[1]
 	const urlSearchParams = new URLSearchParams(urlStr)
@@ -58,10 +62,12 @@ function getUrlParams(url) {
 	return result
 }
 
-function changeContent(TheLink){
+function changeContent(path, FileName){
     xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = Callback;
-    xmlHttp.open("GET", TheLink, false ); // read
+    console.log(path);
+    console.log("/" + FileName + ".html");
+    xmlHttp.open("GET", path + "/" + FileName + ".html", false ); // read
     xmlHttp.send(null); 
 }
 function Callback(){
