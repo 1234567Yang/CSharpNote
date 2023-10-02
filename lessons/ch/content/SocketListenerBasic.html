@@ -1,5 +1,8 @@
+
+
+<br><br>
 <ul>
-    <li>首先学习<code>Socket</code>之连接发送篇：</li>
+    <li>首先学习<code>Socket</code>之监听建立篇：</li>
 </ul>
 <textarea class="codeTextarea">
 //在class下：
@@ -18,3 +21,540 @@ server.Listen(10); //第一个参数：最大连接数
 <p><code>SocketType</code>就是类型，Stream类型的没有边界，所以会出现粘包的问题，需要手动分包。听说<code>Seqpacket</code>一些情况更好用（不粘包），但是<a href="https://stackoverflow.com/a/10109076">Windows竟然没有默认支持</a>。</p>
 <i>推荐一个：<a href="https://zhuanlan.zhihu.com/p/387256713">处理TCP粘包问题的一个解析。</a></i>
 <p><code>ProtocolType</code>指定<code>Socket</code>支持的协议。</p>
+<p>几张很好的图片，帮助理解下<code>Protocol</code>（协议）：</p>
+<img class="img" src="OSI参考模型.png" alt="OSI参考模型(开放式系统互联模型)">
+<img class="img" src="TCPIP分层模型和OSI参考模型.png" alt="TCP/IP分层模型和OSI参考模型">
+
+<p>接下来便是常规操作了：解析<code>IPAddress</code>，然后创建一个<code>IPEndPoint</code>（包含IP地址和一个端口号），之后把这个<code>IPEndPoint</code>用<code>Socket.Bind</code>方法合在一起，实际上这一步可以理解成传参，初始化<code>Socket.Listen</code>，具体可以参考微软<a href="https://learn.microsoft.com/zh-cn/dotnet/api/system.net.sockets.socket.bind?view=net-7.0">官方文档</a>。</p>
+
+<p>之后我们便开始调用<code>Socket.Listen</code>方法，然后我们就可以监听了。</p>
+<i>这个方法只支持.NET5, 6, 7, 8。具体可以参考微软<a href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.listen?view=net-7.0">官方文档</a>。</i>
+
+<p>第一个参数是<b>max length of the pending client connections queue</b>，翻译一下可以理解成<b>待处理的客户端连接队列的最大长度</b>，拆分一下，最重要的是：<b>最大连接长度</b>。好，什么的最大连接长度呢？<code>pending - 待处理的</code>。什么待处理的呢？<code>client - 客户</code>，客户连接。<del>这咋还讲起英语了呢？</del></p>
+<i>顺便一提，<code>Socket</code>中文名就是<code>网络套接字</code>。</i>
+
+
+
+
+<br><br>
+<ul>
+    <li>既然建立了连接，那我们怎么回调呢？<code>Socket</code>之回调建立篇：</li>
+</ul>
+
+<p>这个步骤有点迷惑，因为C#没给我们一个类似于<code>OnClientEvent</code>之类的事件，而是而我们了一个方法 - <code>Socket.Accept</code>，我们可以靠这个方法自己写一个回调事件出来。</p>
+<textarea class="codeTextarea">
+//在class下：
+public static Socket client = null;
+
+Thread thread = new Thread(() => {
+    while (true)
+    {
+        MessageBox.Show("waiting");
+        client = server.Accept();
+        
+        MessageBox.Show("Connect!", "", MessageBoxButtons.OK,MessageBoxIcon.Error,MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+        byte[] buffer = new byte[1024];
+        client.Receive(buffer);
+        //client.Shutdown(SocketShutdown.Both);
+        //client.Close();
+        //client.Dispose();
+        MessageBox.Show(Encoding.UTF8.GetString(buffer));
+
+    }
+});
+thread.Start();
+</textarea>
+<p>解析：我们先用Lambda表达式创建了一个匿名方法，然后直接创建一个<code>Thread</code>。里面用的是<code>while(true)</code>死循环，可以根据条件<code>Shutdown</code>、<code>Close</code>和<code>Break</code>，跳出之前一定要先调用下。</p>
+<b>之所以要放在新的Thread里面，是因为<code>Accept</code>和<code>Receive</code>会阻塞当前线程，如果是按钮点击后再这样做的话，也会阻塞UI线程。</b>
+<p>明确一下：不用同时调用<code>Close</code>和<code>Dispose</code>，因为调用<code>Close</code>的时候会自动调用<code>Dispose</code>。具体可以参考：<a href="https://stackoverflow.com/questions/3601521/should-i-manually-dispose-the-socket-after-closing-it">Should I manually dispose the socket after closing it?</a></p>
+
+
+
+<br><br>
+<ul>
+    <li>完整的服务器代码：</li>
+</ul>
+<ul>
+    <li>窗口xml：</li>
+</ul>
+<textarea class="codeTextarea">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;root&gt;
+  &lt;!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers &amp; schema ...
+    &lt;resheader name=&quot;resmimetype&quot;&gt;text/microsoft-resx&lt;/resheader&gt;
+    &lt;resheader name=&quot;version&quot;&gt;2.0&lt;/resheader&gt;
+    &lt;resheader name=&quot;reader&quot;&gt;System.Resources.ResXResourceReader, System.Windows.Forms, ...&lt;/resheader&gt;
+    &lt;resheader name=&quot;writer&quot;&gt;System.Resources.ResXResourceWriter, System.Windows.Forms, ...&lt;/resheader&gt;
+    &lt;data name=&quot;Name1&quot;&gt;&lt;value&gt;this is my long string&lt;/value&gt;&lt;comment&gt;this is a comment&lt;/comment&gt;&lt;/data&gt;
+    &lt;data name=&quot;Color1&quot; type=&quot;System.Drawing.Color, System.Drawing&quot;&gt;Blue&lt;/data&gt;
+    &lt;data name=&quot;Bitmap1&quot; mimetype=&quot;application/x-microsoft.net.object.binary.base64&quot;&gt;
+        &lt;value&gt;[base64 mime encoded serialized .NET Framework object]&lt;/value&gt;
+    &lt;/data&gt;
+    &lt;data name=&quot;Icon1&quot; type=&quot;System.Drawing.Icon, System.Drawing&quot; mimetype=&quot;application/x-microsoft.net.object.bytearray.base64&quot;&gt;
+        &lt;value&gt;[base64 mime encoded string representing a byte array form of the .NET Framework object]&lt;/value&gt;
+        &lt;comment&gt;This is a comment&lt;/comment&gt;
+    &lt;/data&gt;
+                
+    There are any number of &quot;resheader&quot; rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don&#x27;t support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    --&gt;
+  &lt;xsd:schema id=&quot;root&quot; xmlns=&quot;&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;
+    &lt;xsd:import namespace=&quot;http://www.w3.org/XML/1998/namespace&quot; /&gt;
+    &lt;xsd:element name=&quot;root&quot; msdata:IsDataSet=&quot;true&quot;&gt;
+      &lt;xsd:complexType&gt;
+        &lt;xsd:choice maxOccurs=&quot;unbounded&quot;&gt;
+          &lt;xsd:element name=&quot;metadata&quot;&gt;
+            &lt;xsd:complexType&gt;
+              &lt;xsd:sequence&gt;
+                &lt;xsd:element name=&quot;value&quot; type=&quot;xsd:string&quot; minOccurs=&quot;0&quot; /&gt;
+              &lt;/xsd:sequence&gt;
+              &lt;xsd:attribute name=&quot;name&quot; use=&quot;required&quot; type=&quot;xsd:string&quot; /&gt;
+              &lt;xsd:attribute name=&quot;type&quot; type=&quot;xsd:string&quot; /&gt;
+              &lt;xsd:attribute name=&quot;mimetype&quot; type=&quot;xsd:string&quot; /&gt;
+              &lt;xsd:attribute ref=&quot;xml:space&quot; /&gt;
+            &lt;/xsd:complexType&gt;
+          &lt;/xsd:element&gt;
+          &lt;xsd:element name=&quot;assembly&quot;&gt;
+            &lt;xsd:complexType&gt;
+              &lt;xsd:attribute name=&quot;alias&quot; type=&quot;xsd:string&quot; /&gt;
+              &lt;xsd:attribute name=&quot;name&quot; type=&quot;xsd:string&quot; /&gt;
+            &lt;/xsd:complexType&gt;
+          &lt;/xsd:element&gt;
+          &lt;xsd:element name=&quot;data&quot;&gt;
+            &lt;xsd:complexType&gt;
+              &lt;xsd:sequence&gt;
+                &lt;xsd:element name=&quot;value&quot; type=&quot;xsd:string&quot; minOccurs=&quot;0&quot; msdata:Ordinal=&quot;1&quot; /&gt;
+                &lt;xsd:element name=&quot;comment&quot; type=&quot;xsd:string&quot; minOccurs=&quot;0&quot; msdata:Ordinal=&quot;2&quot; /&gt;
+              &lt;/xsd:sequence&gt;
+              &lt;xsd:attribute name=&quot;name&quot; type=&quot;xsd:string&quot; use=&quot;required&quot; msdata:Ordinal=&quot;1&quot; /&gt;
+              &lt;xsd:attribute name=&quot;type&quot; type=&quot;xsd:string&quot; msdata:Ordinal=&quot;3&quot; /&gt;
+              &lt;xsd:attribute name=&quot;mimetype&quot; type=&quot;xsd:string&quot; msdata:Ordinal=&quot;4&quot; /&gt;
+              &lt;xsd:attribute ref=&quot;xml:space&quot; /&gt;
+            &lt;/xsd:complexType&gt;
+          &lt;/xsd:element&gt;
+          &lt;xsd:element name=&quot;resheader&quot;&gt;
+            &lt;xsd:complexType&gt;
+              &lt;xsd:sequence&gt;
+                &lt;xsd:element name=&quot;value&quot; type=&quot;xsd:string&quot; minOccurs=&quot;0&quot; msdata:Ordinal=&quot;1&quot; /&gt;
+              &lt;/xsd:sequence&gt;
+              &lt;xsd:attribute name=&quot;name&quot; type=&quot;xsd:string&quot; use=&quot;required&quot; /&gt;
+            &lt;/xsd:complexType&gt;
+          &lt;/xsd:element&gt;
+        &lt;/xsd:choice&gt;
+      &lt;/xsd:complexType&gt;
+    &lt;/xsd:element&gt;
+  &lt;/xsd:schema&gt;
+  &lt;resheader name=&quot;resmimetype&quot;&gt;
+    &lt;value&gt;text/microsoft-resx&lt;/value&gt;
+  &lt;/resheader&gt;
+  &lt;resheader name=&quot;version&quot;&gt;
+    &lt;value&gt;2.0&lt;/value&gt;
+  &lt;/resheader&gt;
+  &lt;resheader name=&quot;reader&quot;&gt;
+    &lt;value&gt;System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089&lt;/value&gt;
+  &lt;/resheader&gt;
+  &lt;resheader name=&quot;writer&quot;&gt;
+    &lt;value&gt;System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089&lt;/value&gt;
+  &lt;/resheader&gt;
+&lt;/root&gt;
+</textarea>
+<ul>
+    <li>窗口初始化：</li>
+</ul>
+<textarea class="codeTextarea">
+    namespace ServerExample
+    {
+        partial class Form1
+        {
+            /// <summary>
+            /// 必需的设计器变量。
+            /// </summary>
+            private System.ComponentModel.IContainer components = null;
+    
+            /// <summary>
+            /// 清理所有正在使用的资源。
+            /// </summary>
+            /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing && (components != null))
+                {
+                    components.Dispose();
+                }
+                base.Dispose(disposing);
+            }
+    
+            #region Windows 窗体设计器生成的代码
+    
+            /// <summary>
+            /// 设计器支持所需的方法 - 不要修改
+            /// 使用代码编辑器修改此方法的内容。
+            /// </summary>
+            private void InitializeComponent()
+            {
+                this.button1 = new System.Windows.Forms.Button();
+                this.button2 = new System.Windows.Forms.Button();
+                this.SuspendLayout();
+                // 
+                // button1
+                // 
+                this.button1.Location = new System.Drawing.Point(149, 12);
+                this.button1.Name = "button1";
+                this.button1.Size = new System.Drawing.Size(279, 82);
+                this.button1.TabIndex = 0;
+                this.button1.Text = "start";
+                this.button1.UseVisualStyleBackColor = true;
+                this.button1.Click += new System.EventHandler(this.button1_Click);
+                // 
+                // button2
+                // 
+                this.button2.Enabled = false;
+                this.button2.Location = new System.Drawing.Point(149, 100);
+                this.button2.Name = "button2";
+                this.button2.Size = new System.Drawing.Size(279, 82);
+                this.button2.TabIndex = 1;
+                this.button2.Text = "send";
+                this.button2.UseVisualStyleBackColor = true;
+                this.button2.Click += new System.EventHandler(this.button2_Click);
+                // 
+                // Form1
+                // 
+                this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+                this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+                this.ClientSize = new System.Drawing.Size(576, 218);
+                this.Controls.Add(this.button2);
+                this.Controls.Add(this.button1);
+                this.Name = "Form1";
+                this.Text = "Form1";
+                this.TopMost = true;
+                this.Load += new System.EventHandler(this.Form1_Load);
+                this.ResumeLayout(false);
+    
+            }
+    
+            #endregion
+    
+            private System.Windows.Forms.Button button1;
+            private System.Windows.Forms.Button button2;
+        }
+    }
+    
+    
+</textarea>
+<ul>
+    <li>代码：</li>
+</ul>
+
+<textarea class="codeTextarea">
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Net.Sockets;
+using System.Net;
+using System.Threading;
+
+namespace ServerExample
+{
+    public partial class Form1 : Form
+    {
+        public static Socket server;
+        public static Socket client = null;
+        public static void getHostsExample()
+        {
+            IPAddress[] address = Dns.GetHostAddresses(Dns.GetHostName());
+            foreach (IPAddress ip in address)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    Console.WriteLine(ip.ToString());
+                }
+            }
+
+
+        }
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            IPAddress hostIP = IPAddress.Parse("192.168.56.1");
+            IPEndPoint ep = new IPEndPoint(hostIP, 13126);
+            server.Bind(ep);
+
+
+            server.Listen(10); //第一个参数：最大连接数
+
+
+            button2.Enabled = true;
+            Thread thread = new Thread(() => {
+                while (true)
+                {
+                    MessageBox.Show("waiting");
+                    client = server.Accept();
+                    
+                    MessageBox.Show("Connect!", "", MessageBoxButtons.OK,MessageBoxIcon.Error,MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                    byte[] buffer = new byte[1024];
+                    client.Receive(buffer);
+                    
+                    MessageBox.Show(Encoding.UTF8.GetString(buffer));
+                    client.Shutdown(SocketShutdown.Both);
+                    break;
+
+                }
+            });
+            thread.Start();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            byte[] dataBytes = Encoding.UTF8.GetBytes("hellooooooooooooooooooooooooooooooo");
+            int bytesSent = 0;
+            while (bytesSent < dataBytes.Length)
+            {
+                bytesSent += client.Send(dataBytes, bytesSent, dataBytes.Length - bytesSent, SocketFlags.None);
+            }
+        }
+    }
+}
+</textarea>
+
+
+<br><br>
+<ul>
+    <li>完整的客户端代码：</li>
+</ul>
+<textarea class="codeTextarea">
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
+namespace TCPExample
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            SocketConnectExample();
+        }
+        public static void GetHostEntryExample()
+        {
+            foreach (var ip in Dns.GetHostEntry("www.google.com").AddressList)
+            {
+                Console.WriteLine(ip.ToString());
+            }
+            foreach (var ip in Dns.GetHostEntry("example.org").Aliases)
+            {
+                Console.WriteLine(ip.ToString());
+            }
+            Console.WriteLine(Dns.GetHostEntry("www.baidu.com").HostName); //www.wshifen.com
+        }
+        public static void BaseUriExample()
+        {
+            Uri uri = new Uri(@"https://www.example.com/examples/num1/detail.html");
+            Console.WriteLine(new Uri(uri, @"../../a.txt").AbsoluteUri);
+            Console.WriteLine(uri.Host);
+            //“/”：表示根目录
+            //“./”：表示当前目录，也可以去掉“./”直接写文件名或者下级目录
+            //“../”：表示上级目录
+        }
+        public static void getHostsExample()
+        {
+            IPAddress[] address = Dns.GetHostAddresses(Dns.GetHostName());
+
+            //AddressFamily.InterNetwork表示此IP为IPv4,
+            //AddressFamily.InterNetworkV6表示此地址为IPv6类型
+
+            foreach (IPAddress ip in address)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    Console.WriteLine(ip.ToString());
+                    //192.168.0.195
+                    //172.16.0.2
+                    //192.168.56.1
+                }
+            }
+            
+            
+        }
+        public static void SocketConnectExample()
+        {
+            //SocketType注释
+            {
+                //SocketType raw支持对底层传输协议的访问，可以使用一些特殊的协议，如ICMP和IGMP。
+                //使用raw socket时，应用程序必须提供完整的IP头部，接收到的数据报也会保留IP头部和选项。
+
+                //SocketType stream支持可靠的、双向的、基于连接的字节流，不会重复数据，也不会保留边界。
+                //使用stream socket时，应用程序不需要提供IP头部，只需要发送和接收数据内容。
+                //stream socket通常使用TCP协议和IP地址族
+
+                //在网络上提供排序字节流的面向连接且可靠的双向传输。
+                //Seqpacket 不重复数据，它在数据流中保留边界。
+                //Seqpacket 类型的 Socket 与单个对方主机通信，并且在通信开始之前需要建立远程主机连接。
+            }
+
+            using (Socket sk = new Socket(SocketType.Stream,ProtocolType.Tcp))
+            {
+                //Uri uri = new Uri(@"http://192.168.0.195");
+                IPAddress ip = IPAddress.Parse("192.168.56.1");
+                try {
+                    sk.Connect(ip, 13126);
+                }catch(Exception ex) {
+                    Console.WriteLine(ex.Message);
+                    return;
+                }
+                
+                //CancellationToken cancellationToken = new CancellationToken();
+                //sk.ConnectAsync(ip, 13126, cancellationToken);
+
+                // 准备要发送的数据
+                string data = "nmfdvdjiv nevon h iusavjfsv kak jnvk sajknjvknjvs nsv nkvnv  nv nvcnv cnv  nv nvc nvcs nnv s";
+                byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+
+                // 发送数据
+                int bytesSent = 0;
+                while (bytesSent < dataBytes.Length)
+                {
+                    bytesSent += sk.Send(dataBytes, bytesSent, dataBytes.Length - bytesSent, SocketFlags.None);
+                }
+
+
+                // 关闭连接
+                sk.Shutdown(SocketShutdown.Both);
+                sk.Close();
+            }
+        }
+        public static void SocketReceiveExample()
+        {
+            using (Socket sk = new Socket(SocketType.Stream, ProtocolType.Tcp))
+            {
+                IPAddress ip = IPAddress.Parse("192.168.56.1");
+                try
+                {
+                    sk.Connect(ip, 13126);
+
+                    // Create a buffer to receive incoming data
+                    byte[] buffer = new byte[1024];
+                    
+                    int receivedDataLength = sk.Receive(buffer);
+
+                    // Convert byte data to a string
+                    string data = Encoding.ASCII.GetString(buffer, 0, receivedDataLength);
+                    Console.WriteLine("Received Data: " + data);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return;
+                }
+            }
+        }
+        public static void SocketReceiveBigFileExample()
+        {
+            using (Socket sk = new Socket(SocketType.Stream, ProtocolType.Tcp))
+            {
+                IPAddress ip = IPAddress.Parse("192.168.56.1");
+                try
+                {
+                    sk.Connect(ip, 13126);
+
+                    // Create a buffer to receive incoming data
+                    byte[] buffer = new byte[1024];
+                    int receivedDataLength = 0;
+                    
+                    FileStream file = new FileStream("a.txt", FileMode.Append);
+                    
+                    while((receivedDataLength = sk.Receive(buffer)) > 0)
+                    {
+                        
+                        //Console.WriteLine(111);
+                        Console.WriteLine(Encoding.ASCII.GetString(buffer, receivedDataLength - 3, 3));
+                        if (Encoding.ASCII.GetString(buffer, receivedDataLength - 3, 3) == "END")
+                        {
+                            file.Write(buffer.Take(receivedDataLength).Take(receivedDataLength - 3).ToArray());
+                            Console.WriteLine("END - break");
+
+                            Process.Start("explorer.exe", @"a.txt"); //******
+                            break;
+                        }
+
+                        file.Write(buffer.Take(receivedDataLength).ToArray());
+
+
+                        buffer = new byte[1024];
+                    }
+                    file.Close();
+                    file.Dispose();
+
+                    // Convert byte data to a string
+                    string data = Encoding.ASCII.GetString(buffer, 0, receivedDataLength);
+                    Console.WriteLine("Received Data: " + data);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return;
+                }
+            }
+        }
+    }
+}
+</textarea>
