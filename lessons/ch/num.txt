@@ -6,3 +6,4 @@ event|C# 事件 详解|2023.6.5
 NetworkBasic|C# 网络基础|2023.9.30
 ClientSocketBasic|C# 网络Socket客户端 基本用法|2023.9.30
 SocketListenerBasic|C# 网络SocketListener服务器 基本用法|2023.9.30
+HttpClientBasic|C# 网络HttpClient 基本用法（1）|2023.10.4-2023.10.5
