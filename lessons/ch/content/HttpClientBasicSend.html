@@ -1,0 +1,81 @@
+<p>今天继续讲C#网络<del>全家桶</del>系列。</p>
+<p>HttpClient好像都听说过吧，就是网页操作的，那按照之前的分类的话，我们已经到了应用层了。</p>
+
+<p>它是<code>HttpMessageInvoker</code>的子类。</p>
+<ul>
+    <li>从发送数据学起：</li>
+</ul>
+
+<ul>
+    <li>先学一个比较简单的get网页：</li>
+</ul>
+
+<textarea class="codeTextarea">
+HttpClient httpClient = new HttpClient();
+HttpResponseMessage HRM = httpClient.GetAsync(@"https://www.baidu.com").Result;
+try { HRM.EnsureSuccessStatusCode(); } catch { return; }
+
+Console.WriteLine(HRM.Content.ReadAsStringAsync().Result.Substring(0, 100));
+</textarea>
+<p>输出：</p>
+<textarea class="outputTextarea">
+&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;meta
+
+C:\C#sourceCode\HttpClientExample\HttpClientExample\bin\Debug\net6.0\HttpClientExample.exe (进程 5872)已退出，代码为 0。
+要在调试停止时自动关闭控制台，请启用“工具”-&gt;“选项”-&gt;“调试”-&gt;“调试停止时自动关闭控制台”。
+按任意键关闭此窗口. . .
+</textarea>
+<p><code>HttpResponseMessage.EnsureSuccessStatusCode</code>会抛出一个异常，如果 HTTP 响应的状态码不表示成功。换句话说，如果 HTTP 响应的状态码不在 200-299 的范围内，那么这个方法就会抛出 HttpRequestException 异常。</p>
+<p>具体可以查看微软<a href="https://learn.microsoft.com/zh-cn/dotnet/api/system.net.http.httpresponsemessage.ensuresuccessstatuscode?view=net-7.0">官方文档</a>。</p>
+<del>本来我都不知道这个方法，intelligent code帮我找到了。</del>
+
+<ul>
+    <li>添加/删除标头：</li>
+</ul>
+<textarea class="codeTextarea">
+httpClient.DefaultRequestHeaders.Clear();
+httpClient.DefaultRequestHeaders.Remove("XXX");
+httpClient.DefaultRequestHeaders.Add("AAA", "QWERTY");
+</textarea>
+<b>直接运行不会报错，因为<code>Remove</code>方法失败的时候不会触发<code>Exception</code>，而是返回假。</b>
+
+<p>在标头这里，可以添加/修改协议头。</p>
+<textarea class="codeTextarea">
+httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.43");
+</textarea>
+<p>至于自己的协议头嘛……浏览器里就可以自己看：</p>
+<img class="img" src="Protocolheader.png">
+
+<p>里面还发现了一个<code>HttpClient.DefaultRequestVersion</code>。</p>
+<p>详细的HTTP介绍可以<a href="https://zhuanlan.zhihu.com/p/266578819">点这里</a>或者<a href="https://blog.csdn.net/weixin_45910068/article/details/126290248">这里更详细更底层</a>。</p>
+<p>怎么用通俗的话来解释HTTP1.0, 1.1, 2.0, 3.0呢？</p>
+<p>四个字 - <b>越来越好</b>。</p>
+<p>想要修改也很简单：</p>
+<textarea class="codeTextarea">
+httpClient.DefaultRequestVersion = new Version(1, 1);
+</textarea>
+<p>注意：里面的<code>Version</code>不是<code>HttpClient</code>专有的，很多其它地方都可以见到它。</p>
+<p>那既然这样……我设置版本5.0会怎么样呢？</p>
+<p>没有报错。</p>
+<blockquote cite="chat.bing.com">
+当您设置了一个不存在的HTTP版本时，当您使用这个<code>HttpClient</code>实例发送请求时，.NET运行时会忽略这个无效的版本，并使用一个有效的HTTP版本来发送请求。
+</blockquote>
+<p>经过测试确实是这样，<code>DefaultRequestVersion</code>会变，但是请求的时候服务器收到的还是<code>HTTP 1.1</code>。而我改成了1.0之后，服务器收到的响应也就变成了1.0</p>
+<b>但是离谱的是，这个<code>DefaultRequestVersion</code>不支持HTTP2.0 和 3.0，可以通过<a href="https://stackoverflow.com/questions/32685151/how-to-make-the-net-httpclient-use-http-2-0">这里</a>解决。</b>
+
+<p><code>HttpClient.DefaultVersionPolicy</code>是用来设置当请求的 HTTP 版本不可用时，应该如何选择使用的HTTP版本</p>
+<p>当我们把版本设置到5.0，然后再调用<code>RequestVersionExact</code>。</p>
+<textarea class="outputTextarea">
+System.AggregateException:“One or more errors occurred. (Requesting HTTP version 5.0 with version policy RequestVersionExact while unable to establish HTTP/3 connection.)”
+</textarea>
+
+<p>此外还有<code>Timeout</code>，<code>MaxResponseContentBufferSize</code>，看看就懂。</p>
+
+
+<!--ul>
+    <li>那一块把响应头也学了吧：</li>
+</ul>
+<textarea class="codeTextarea">
+Console.WriteLine(HRM.Headers);
+</textarea>
+<b>有些属性可以直接用<code>HttpResponseMessage.XXX</code>获取（比如<code>Vary</code>），有的不行（比如<code>Cookie</code>）</b-->
