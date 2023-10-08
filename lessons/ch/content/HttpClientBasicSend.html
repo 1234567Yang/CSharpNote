@@ -6,6 +6,9 @@
     <li>从发送数据学起：</li>
 </ul>
 
+
+
+<br><br><br>
 <ul>
     <li>先学一个比较简单的get网页：</li>
 </ul>
@@ -29,6 +32,9 @@ C:\C#sourceCode\HttpClientExample\HttpClientExample\bin\Debug\net6.0\HttpClientE
 <p>具体可以查看微软<a href="https://learn.microsoft.com/zh-cn/dotnet/api/system.net.http.httpresponsemessage.ensuresuccessstatuscode?view=net-7.0">官方文档</a>。</p>
 <del>本来我都不知道这个方法，intelligent code帮我找到了。</del>
 
+
+
+<br><br><br>
 <ul>
     <li>添加/删除标头：</li>
 </ul>
@@ -70,6 +76,104 @@ System.AggregateException:“One or more errors occurred. (Requesting HTTP versi
 </textarea>
 
 <p>此外还有<code>Timeout</code>，<code>MaxResponseContentBufferSize</code>，看看就懂。</p>
+
+
+
+<br><br><br>
+<ul>
+    <li>再补充下<code>Post</code>：</li>
+</ul>
+
+<textarea class="codeTextarea">
+byte[] buffer = new byte[10] {1,2,3,4,5,6,7,8,9,10};
+
+ByteArrayContent bc = new ByteArrayContent(buffer);
+
+httpClient.PostAsync("https://www.example.com/", bc);
+</textarea>
+
+<p>里面的<code>ByteArrayContent</code>可以换成<code>StringContent</code>之类的。</p>
+
+<p>既然都来到这了，那我们就继续<del>魔鬼</del>下去。</p>
+<textarea class="codeTextarea">
+var keyValuePairs = new List<KeyValuePair<string, string>>
+    {
+        new KeyValuePair&lt;string, string&gt;(&quot;q&quot;, &quot;1&quot;),
+        new KeyValuePair&lt;string, string&gt;(&quot;y&quot;, &quot;2023&quot;),
+        new KeyValuePair&lt;string, string&gt;(&quot;m&quot;, &quot;10&quot;),
+        new KeyValuePair&lt;string, string&gt;(&quot;d&quot;, &quot;01&quot;),
+        new KeyValuePair&lt;string, string&gt;(&quot;md5&quot;, &quot;XXX&quot;)
+    };
+
+    FormUrlEncodedContent content = new FormUrlEncodedContent(keyValuePairs);
+
+
+    httpClient.PostAsync("https://www.example.com/", content);
+</textarea>
+
+<p><code>Post</code>多个数据，解析下：先定义了一个<code>List</code>，然后里面是<code>KeyValuePair</code>，俩泛型都是<code>string</code>类型的。</p>
+<p>然后依次往<code>List</code>里面添加<code>KeyValuePair</code>。</p>
+<del>说实话之前真没见过这么添加的，一般都用<code>List.Add</code>方法。</del>
+<p>之后转换成<code>FormUrlEncodedContent</code>就可以<code>Post</code>啦。</p>
+
+<!--p>名字不要觉得难记，<code>Form - 形式，结构</code>，<code>Encoded - 编码了的</code>，<code>Content - 内容</code>。</p>
+
+<p>跟我一起把<code>FormUrlEncodedContent</code>打几遍。</p>
+
+<p>在纯文本里打的：</p>
+<textarea class="outputTextarea">
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(Your Key Value Pair);
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(KeyPair);
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(KeyPair);
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(KeyPair);
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(KeyPair);
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(KeyPair);
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(KeyPair);
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(KeyPair);
+FormUrlEncodedContent fromUrlEncodedContent = new FormUrlEncodedContent(KeyPair);
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(KeyPair);
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncofedContent(KeyPair);
+</textarea>
+
+<p>在Visual Studio里打的：</p>
+<textarea class="outputTextarea">
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent();
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent();
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent();
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent();
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent();
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent();
+FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent();
+</textarea-->
+
+
+
+<br><br><br>
+<ul>
+    <li><code>Send</code>方法：</li>
+</ul>
+
+<textarea class="codeTextarea">
+HttpRequestMessage message = new HttpRequestMessage();
+message.RequestUri = new Uri(@"https://www.bing.com/");
+message.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+// message.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+HttpClient httpClient = new HttpClient();
+Stream stream = httpClient.Send(message).Content.ReadAsStream();
+//不能直接实例化一个抽象类，但是可以实例化一个继承自抽象类的具体类。
+GZipStream gZipStream = new GZipStream(stream, CompressionMode.Decompress);
+
+StreamReader reader = new StreamReader(gZipStream);
+string text = reader.ReadToEnd();
+Console.WriteLine(text);
+
+Clipboard clipboard = new Clipboard();
+clipboard.SetText(text);
+</textarea>
+
+<p>可以自己配置<code>HttpRequestMessage</code>，<code>AcceptEncoding</code>表示支持的压缩格式（deflate, zip, gzip等等）。</p>
+
+
 
 
 <!--ul>
