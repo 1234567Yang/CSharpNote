@@ -7,3 +7,24 @@
     <li>接收数据：</li>
 </ul>
 
+<textarea class="codeTextarea">
+HttpClient httpClient = new HttpClient();
+HttpResponseMessage res = httpClient.GetAsync("https://www.baidu.com/").Result;
+</textarea>
+
+<p>数据头：</p>
+<textarea class="codeTextarea">
+var headers = res.Headers;
+foreach (var header in headers)
+{
+    Console.WriteLine(header);
+}
+
+
+if (headers.TryGetValues("Date", out var values))
+{
+    var contentType = values.First(); //First - LINQ
+    Console.WriteLine($"Date: {contentType}");
+}
+</textarea>
+
