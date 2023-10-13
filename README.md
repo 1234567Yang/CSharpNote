@@ -1,2 +1,2 @@
 # CSharpInfor
-一些自己用的C#资料
+🔥🔥🔥C#资料整理，超详细笔记，从此告别<del>美丽的</del>Microsoft Docs。🔥🔥🔥
