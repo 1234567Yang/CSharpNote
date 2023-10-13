@@ -29,7 +29,7 @@ public static void HttpClientCookieExample()
 <textarea class="codeTextarea">
 client.DefaultRequestHeaders.Add("Authorization", "Bearer YourToken");
 </textarea>
-<p><code>YourToken</code>直接替换成别的，Bearer + 一个空格保留。</p>
+<p><code>YourToken</code>直接替换成别的，<code>Bearer + 一个空格</code>保留。</p>
 <p>为啥爆栗？</p>
 <blockquote cite="chat.bing.com">
     这种方式直接将"Bearer YourToken"作为值添加到"Authorization"头中。这种方法可能会导致格式错误，因为如果你已经有一个名为"Authorization"的头，那么再次添加会抛出异常
@@ -39,7 +39,47 @@ client.DefaultRequestHeaders.Add("Authorization", "Bearer YourToken");
 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Your Oauth token");
 </textarea>
 <p>更容易理解。</p>
+<p>为啥要加<code>Bearer</code>呢？</p>
+<p>说白了就是<code>Authorization</code>不止一种方法，举个例子，<code>Basic</code>也是一种方法。</p>
+<blockquote cite="chat.bing.com">
+    这是一种非常常见的HTTP验证方案。在这种方案中，用户名和密码被连接在一起，然后通过Base64编码，最后放在HTTP头的<code>Authorization</code>字段中。
+</blockquote>
+<i>ps: <code>Basic</code>不等于直接把<code>user:pass</code>放在url里面<b>（New Bing答案，未实际测试）</b>。</i>
+<blockquote cite="chat.bing.com">
+    <code>user:pass</code>和<code>Basic Authorization</code>都是用于HTTP请求认证的方式，但它们的使用场景和安全性有所不同。
+<br>
+    <code>user:pass</code>：这是一种将用户名和密码直接嵌入到URL中的方式，也被称为URL内嵌认证信息。这种方式简单易用，可以直接在浏览器中输入URL来进行认证。然而，这种方式的安全性较低，因为用户名和密码会直接暴露在URL中。
+<br>
+    <code>Basic Authorization</code>：这是一种将认证信息放在HTTP请求头的<code>Authorization</code>字段中的方式。在这种情况下，认证信息（如用户名和密码）会被编码（通常是Base64编码）并放在<code>Authorization</code>字段中。这种方式通常被用于API调用和服务器之间的通信，并且比URL内嵌认证信息更安全。
+<br>
+    总的来说，<code>user:pass</code>和<code>Basic Authorization</code>都可以用于HTTP请求的认证，但它们的使用场景和安全性有所不同。具体使用哪种方式取决于你的应用场景和安全需求。希望这个信息对你有所帮助！如果你还有其他问题，欢迎随时向我提问。
+</blockquote>
+<img class="img" src="URL信息.png" alt="完整的url">
 
+
+
+<br><br><br>
+<ul>
+    <li>取消请求：</li>
+</ul>
+<p>可以用<code>httpClient.CancelPendingRequests();</code>，而且如果相应已经完成，不会抛出异常。</p>
+<p>获取异步状态可以在get的时候赋值给一个<code>Task</code>，因为我们一般用的是<code>result</code>，因为我们一般用的是<code>result</code>，但是它实际返回的是一个<code>Task</code>。</p>
+
+
+<br><br><br>
+<ul>
+    <li><code>HttpClientHandler</code>用法：</li>
+</ul>
+<p>可以用<code>HttpClientHandler</code>来作为一个构造函数参数创建一个<code>HttpClient</code>，里面大体是设置一些行为的，比如<code>AllowAutoRedirect</code>，是否跟随重定向相应。</p>
+<b>实际上我们完全可以用<code>httpClient.DefaultRequestHeaders</code>，但是它这个类能给我更详细的选项。</b>
+<p>比如：你想设置<code>Cookie</code>，如果用<code>httpClient.DefaultRequestHeaders</code>，你要手动无误地把<code>Cookie</code>打出来，但是如果你用了<code>HttpClientHandler</code>来构造一个<code>HttpClient</code>，那就会有提示。</p>
+<b>但是，坏处嘛……</b>
+<textarea class="codeTextarea">
+var a = new CookieContainer();
+handler.CookieContainer = a;
+a.Add(new Uri(@"https://example.com/"), new Cookie("CookieName", "CookieValue")); // 浏览器中显示：CookieName=CookieValue
+</textarea>
+<del>明白了。</del>
 
 
 <br><br><br>
@@ -50,3 +90,21 @@ httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("
 <img class="img" src="复制curl.png" alt="如何复制curl(bash)">
 <p>然后直接用<a href="https://curlconverter.com/csharp/">这个</a>转换（<a href="https://github.com/curlconverter/curlconverter">源代码</a>）。</p>
 <i>其中<code>bash</code>是Linux版本，<code>cmd</code>是Windows版本。</i>
+
+
+
+<br><br><br>
+<ul>
+    <li>拼写：</li>
+</ul>
+<i>刚刚发现了一个问题，<code>Authorization</code>和<code>Authentication</code>两种不同的拼法，具体参考<a href="https://stackoverflow.com/questions/6556522/authentication-versus-authorization">这里</a>。都是<code>Author</code>开头的。</i>
+<blockquote cite="https://stackoverflow.com/questions/6556522/authentication-versus-authorization">
+    Authentication is the process of ascertaining that somebody really is who they claim to be.
+<br>
+    Authorization refers to rules that determine who is allowed to do what. E.g. Adam may be authorized to create and delete databases, while Usama is only authorised to read.
+<br>
+    身份验证（Authentication）是确定某人确实是他们所声称的人的过程。
+<br>
+     授权（Authorization）是指确定允许谁做什么的规则。 例如，Adam可能被授权创建和删除数据库，而Usama仅被授权读取。
+</blockquote>
+<del>翻译成中文就懂了，英文看着都一样……</del>
