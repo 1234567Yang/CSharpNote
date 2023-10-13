@@ -1,0 +1,11 @@
+const int wh = 500;
+
+Bitmap bmp = new Bitmap(wh, wh);
+
+  // Create a graphics object from the bitmap
+ Graphics g = Graphics.FromImage(bmp); // 在这里调用了BMP
+
+ g.CopyFromScreen(new Point(0, 0), new Point(0, 0), new Size(wh, wh));
+ //new Point(0, 0), new Point(0, 0) - 第一个 Point 参数指定屏幕上捕获矩形的起点，第二个 Point 参数指定图像中目标矩形的起点。
+ 
+bmp.Save("screenshot.png");
