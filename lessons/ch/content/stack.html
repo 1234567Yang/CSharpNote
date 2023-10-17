@@ -5,7 +5,7 @@
 <br>
 <b>queue是先进先出的，stack是先进后出的，这两个各有各的使用方法，而你所说的觉得ArrayList比这些好用，这是错误的，因为不存在谁比谁好用，这是要根据实际情况来的。</b>
 <p>
-    在C#中，Stack类实现了ICollection接口，而不是ICollection<T>接口。这是一个非泛型的接口，它并不包含Add和Remove方法。这就是为什么Stack可以实现ICollection接口，但不实现ICollection<T>接口的原因。
+    在C#中，Stack类实现了<code>System.Collections.ICollection</code>接口，而不是<code>ICollection<T></code>接口。这是一个非泛型的接口，它并不包含Add和Remove方法。这就是为什么Stack可以实现ICollection接口，但不实现ICollection<T>接口的原因。
 
     顺便补充一点：ICollection可以修改数据长度，IEnumerable不可以（仅枚举）
 </p>
