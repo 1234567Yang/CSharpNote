@@ -28,3 +28,97 @@ if (headers.TryGetValues("Date", out var values))
 }
 </textarea>
 
+
+
+<br><br><br>
+<ul>
+    <li>其中<code>HttpResponseMessage.Content.Headers</code>和<code>HttpResponseMessage.Headers</code>的区别（个人理解）：</li>
+</ul>
+
+
+<p><code>HttpResponseMessage.Content.Headers</code>偏向应用。</p>
+<p><code>HttpResponseMessage.Headers</code>偏向信息。</p>
+
+<textarea class="codeTextarea">
+public static void HttpClientGetHeaderAndContent()
+{
+
+    HttpRequestMessage message = new HttpRequestMessage();
+    message.RequestUri = new Uri(@"https://example.com/");
+    message.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+    // message.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+
+    HttpClient httpClient = new HttpClient();
+
+    HttpResponseMessage all = httpClient.Send(message);
+    HttpContentHeaders res = all.Content.Headers;
+    HttpHeaders headers = all.Headers;
+    
+    foreach(var a in res)
+    {
+        Console.WriteLine(a.Key + " : " + a.Value.First());
+    }
+    Console.WriteLine("********************");
+    foreach(var a in headers)
+    {
+        Console.WriteLine(a.Key + " : " + a.Value.First());
+    }
+}
+</textarea>
+<p>输出：</p>
+<textarea class="outputTextarea">
+Content-Encoding : deflate
+Content-Type : text/html; charset=utf-8
+Expires : Tue, 24 Oct 2023 03:36:11 GMT
+Last-Modified : Thu, 17 Oct 2019 07:18:26 GMT
+Content-Length : 630
+********************
+Age : 525892
+Cache-Control : max-age=604800
+Date : Tue, 17 Oct 2023 03:36:11 GMT
+ETag : "3147526947+deflate"
+Server : ECS
+Vary : Accept-Encoding
+X-Cache : HIT
+</textarea>
+<p>解释一下：懒</p>
+<blockquote cite="chat.bing.com">
+Content-Encoding：此头指示了应用于资源主体的编码。在这种情况下，使用了“deflate”编码。
+<br>
+Content-Type：此头指示了资源的媒体类型。在这种情况下，它是“text/html; charset=utf-8”，表示资源是UTF-8编码的HTML文本。
+<br>
+Expires：此头提供了资源过期的日期和时间。在这种情况下，资源将在2023年10月24日03:36:58 GMT过期。
+<br>
+Last-Modified：此头提供了资源最后修改的日期和时间。在这种情况下，资源最后修改于2019年10月17日07:18:26 GMT。
+<br>
+Content-Length：此头提供了以字节为单位的响应主体长度。在这种情况下，响应主体长度为630字节。
+<br>
+Age：此头表示自原始服务器生成响应以来经过的时间（以秒为单位）。在这种情况下，经过了354559秒。
+<br>
+Cache-Control：此头指示缓存行为。在这种情况下，它指示资源可以被缓存，并且缓存的最大生存时间为604800秒。
+<br>
+Date：这是服务器响应的日期和时间。
+<br>
+ETag：这是一个资源特定版本的标识符。在这种情况下，它是"3147526947+deflate"。
+<br>
+Server：这个头描述了处理请求的服务器软件。在这种情况下，它是ECS。
+<br>
+Vary：此头用于确定是否可以从缓存中提供响应。在这种情况下，“Accept-Encoding”表示如果请求中的“Accept-Encoding”头与原始请求不同，则不能使用缓存的响应。
+<br>
+X-Cache：此头显示了缓存服务器是否命中或未命中缓存。在这种情况下，“HIT”表示请求命中了缓存，因此资源是从缓存中检索的，而不是从原始服务器检索的。
+<br>
+
+Expires：这个头部字段定义了响应或特定版本的资源何时被认为过期。过期的资源可能不再有效，可能需要重新从服务器获取。在这种情况下，Expires头部字段的值是Tue, 24 Oct 2023 03:36:58 GMT，意味着资源在这个时间点后被认为是过期的。
+<br>
+Age：这个头部字段表示自原始服务器生成响应以来经过的时间（以秒为单位）。这并不是传输数据的时间，而是从服务器生成响应到现在的时间。在这种情况下，经过了354559秒。Age这个HTTP响应头字段的值，实际上是表示从服务器最初生成并发送响应到现在经过的时间，单位是秒。这个时间包括了这个响应在缓存中存储的时间，也就是说，如果一个响应被缓存了，那么Age字段的值就会增加。所以，你可以把Age看作是这个响应在缓存中“存在”的时间。
+<br>
+ETag：这个头部字段是一个资源特定版本的标识符。它可以用来确定资源是否已经改变，如果没有改变，可以使用缓存的版本，而不需要重新从服务器获取。在这种情况下，它是"3147526947+deflate"。
+<br>
+Vary：这个头部字段用于确定是否可以从缓存中提供响应。如果请求中的某些头部字段与原始请求不同，则不能使用缓存的响应，必须重新从服务器获取。即使数据已经传输完毕，缓存仍然有用，因为它可以加速后续的请求。例如，如果一个网页被许多用户访问，那么将网页缓存起来可以减少服务器的负载，并加速用户获取网页的速度。
+<br>
+X-Cache：此头部字段显示了缓存服务器是否命中或未命中缓存。在这种情况下，“HIT”表示请求命中了缓存，因此资源是从缓存中检索的，而不是从原始服务器检索的。
+</blockquote>
+<b>要点：<code>Content-Encoding</code>是内容主体的编码，比如<code>deflate</code>，<code>gzip</code>等。
+<br>
+<code>Content-Length</code>只是内容的长度。
+</b>
