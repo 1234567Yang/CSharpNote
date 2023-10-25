@@ -7,6 +7,6 @@ NetworkBasic|C# 网络基础|2023.9.30
 ClientSocketBasic|C# 网络Socket客户端 基本用法|2023.9.30
 SocketListenerBasic|C# 网络SocketListener服务器 基本用法|2023.9.30
 HttpClientBasicSend|C# 网络HttpClient 发送数据 详解|2023.10.4-2023.10.7
-HttpClientBasicReceive|C# 网络HttpClient 接收数据 详解（！！！！未完成！！！！）|2023.10.7
+HttpClientBasicReceive|C# 网络HttpClient 接收数据 详解|2023.10.7
 HttpClientAdvanceSend|C# 网络HttpClient 发送数据 高级用法|2023.10.10
 ScreenshotBasic|C# 截图|2023.10.14
