@@ -1,0 +1,72 @@
+<p>遇到个离谱的问题，C# Library 编译出的 DLL 竟然不能放在 .Net Framework 里面用。</p>
+<p>整了半天都在那报错：</p>
+<textarea class="outputTextarea">
+System.IO.FileNotFoundException:“未能加载文件或程序集“System.Runtime, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03XXXXXXXX”或它的某一个依赖项。系统找不到指定的文件。”
+</textarea>
+<p>然后在<a href="https://blog.csdn.net/m0_57882370/article/details/121474313">这里</a>找到了答案：要选择<code>类库（.Net Framwork）</code>，而不是<code>类库</code>。</p>
+<p>之后又在 StackOverflow 上找到<a href="https://stackoverflow.com/questions/42939454/what-is-the-difference-between-net-core-and-net-standard-class-library-project">这篇文章</a>，里面说到：</p>
+<blockquote>Compatibility: Libraries that target .NET Standard will run on any .NET Standard compliant runtime, such as .NET Core, .NET Framework, Mono/Xamarin. On the other hand, libraries that target .NET Core can only run on the .NET Core runtime.</blockquote>
+<p>然后做个测试，傻眼了：</p>
+<p>俩 DLL 在 .Net Core 模式下都可以运行，代码：</p>
+<textarea class="codeTextarea">
+using ClassLibrary1;
+using ClassLibrary2;
+namespace ConsoleAppTest
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine(ClassLibrary1.Class1.T1());
+            Console.WriteLine(ClassLibrary2.Class1.T2());
+        }
+    }
+}
+</textarea>
+<p>输出：</p>
+<textarea class="outputTextarea">
+1
+2
+
+C:\C#sourceCode\LiveStreamTest\ConsoleAppTest\bin\Release\net6.0\ConsoleAppTest.exe (进程 27384)已退出，代码为 0。
+要在调试停止时自动关闭控制台，请启用“工具”->“选项”->“调试”->“调试停止时自动关闭控制台”。
+按任意键关闭此窗口. . .
+</textarea>
+<b>但是！</b>
+<textarea class="codeTextarea">
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using ClassLibrary1;
+using ClassLibrary2;
+
+
+namespace TestFramework
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //MessageBox.Show(ClassLibrary1.Class1.T1().ToString());
+            MessageBox.Show(ClassLibrary2.Class1.T2().ToString());
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
+</textarea>
+<p>第一个创建的<code>类库 .Net Standard 2.1</code>，然后报错，第二个<code>类库（.Net Framwork）</code>，不报错，我也就整不明白了 Standard 哪李兼容了？<del>这么多年来有没有好好工作？工资涨没涨？有时候找找自己的原因。</del></p>
