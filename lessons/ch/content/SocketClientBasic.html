@@ -42,7 +42,7 @@ public static void SocketConnectExample()
 <p>我们先定义了一个<code>IPAddress</code>，并且把它用<code>IPAddress.Parse</code>方法解析了一下，<code>192.168.56.1</code>就是我的本地IPv4地址，不知道的人可以打开cmd，输入<code>ipconfig</code>来查看，或者用之前我们看到的<code>Dns.GetHostAddresses</code>。</p>
 <p>然后我们用了<code>Socket.Connect</code>方法，连接到了刚刚的ip，端口为<code>13126</code>。</p>
 <blockquote cite="https://zh.wikipedia.org/zh-cn/TCP/UDP%E7%AB%AF%E5%8F%A3%E5%88%97%E8%A1%A8">计算机之间依照互联网传输层TCP/IP协议的协议通信，不同的协议都对应不同的端口。</blockquote>
-<blockquote cite="https://stackoverflow.com/questions/36796183/why-is-the-maximum-port-range-65535-in-the-tcp-ip-suite">查看<a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol#TCP_segment_structure">TCP 段的数据包格式</a>。端口标识符是无符号的 16 位整数，这意味着您可以输入的最大数字是 216-1 = 65535。</blockquote>
+<blockquote cite="https://stackoverflow.com/questions/36796183/why-is-the-maximum-port-range-65535-in-the-tcp-ip-suite">查看<a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol#TCP_segment_structure">TCP 段的数据包格式</a>。端口标识符是无符号的 16 位整数，这意味着您可以输入的最大数字是 2^16-1 = 65535。</blockquote>
 <p>如果连接成功，<code>try</code>没有出现异常，就用<code>Encoding.UTF8.GetBytes(data);</code>把数据转成<code>byte[]</code>类型的一个变量，并依次用<code>Socket.Send</code>方法循环发送到服务器。</p>
 <p><code>SocketFlags</code>一般都填<code>none</code>。具体的类型参考可以看看微软<a href="https://learn.microsoft.com/zh-cn/dotnet/api/system.net.sockets.socketflags?view=net-7.0">官方文档</a>。在这其中发现了个比较好玩的东西：<code>DontRoute</code>，不使用路由器，如果在本地和目标地址之间有路由器，数据将会丢失。</p>
 <blockquote cite="https://www.cloudflare.com/learning/network-layer/what-is-routing/">
@@ -50,6 +50,7 @@ public static void SocketConnectExample()
 路由器的工作方式如下：当路由器收到数据包时，它会读取数据包的标头*以查看其预期目的地，就像火车售票员检查乘客的车票以确定他们应该乘坐哪列火车一样。然后，它根据其路由表中的信息确定数据包的路由位置。
 路由器每秒使用数百万个数据包执行此操作数百万次。当数据包传输到其目的地时，它可能会被不同的路由器路由多次。
 </blockquote>
+<p><code>SocketFlags</code>中的<code>Peek</code>会返回数据，但是不会从缓冲区删除这些数据（偷看一眼）。</p>
 <p>发送完数据之后就用<code>Socket.Shutdown</code>方法，其中参数还是一个<code>SocketShutdown</code>的枚举，可以选择<code>Receive</code>（禁用接收）、<code>Send</code>（禁用发送）或<code>Both</code>（都禁用）。具体可以在微软<a href="https://learn.microsoft.com/zh-cn/dotnet/api/system.net.sockets.socketshutdown?view=net-7.0">官方文档</a>看看。</p>
 <p>最后用<code>Socket.Shutdown</code>方法关闭，理论上用了<code>using (Socket sk = new Socket(SocketType.Stream,ProtocolType.Tcp))</code>就可以不用管了，但是个人习惯还是关闭一下。</p>
 <p>为什么要先<code>Shutdown</code>再<code>Close</code>？</p>

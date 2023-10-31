@@ -22,3 +22,39 @@ Graphics 类是 System.Drawing 命名空间的一部分，用于在 .NET 图形�
 <p>第一个<code>Point</code>参数指定屏幕上捕获矩形的起点，第二个<code>Point</code>参数指定图像中目标矩形的起点。</p>
 <img class="img" alt="重载方法1" src="Graphics重载1.png">
 <img class="img" alt="重载方法2" src="Graphics重载2.png">
+
+
+
+
+<br><br><br>
+<ul>
+    <li>缩略图/像素获取：</li>
+</ul>
+<p>然后所有方法扔这里：</p>
+<textarea class="codeTextarea">
+static void Main(string[] args)
+{
+    Bitmap bmp = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+
+    // Create a graphics object from the bitmap
+    Graphics g = Graphics.FromImage(bmp); // 在这里调用了BMP
+
+    g.CopyFromScreen(new Point(0, 0), new Point(0, 0), new Size(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height));
+
+    Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+    BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
+
+    //bmp.SetPixel(0, 0, Color.FromArgb(100,100,100,100)); 会报错
+
+    bmp.UnlockBits(bmpData);
+    //bmp.Save("screenshot_before.bmp");
+
+    //bmp = (Bitmap)bmp.GetThumbnailImage(Screen.PrimaryScreen.Bounds.Width / 2, Screen.PrimaryScreen.Bounds.Height / 2, ()=>{ return false; },IntPtr.Zero);
+    //bmp.Save("screenshot.bmp");
+
+    //Process.Start("explorer.exe", "screenshot.bmp");
+    //Process.Start("explorer.exe", "screenshot_before.bmp");
+}
+</textarea>
+<p><code>LockBits</code>直接通过指针访问，用完之后要<code>UnlockBits</code>，期间不能改bmp。</p>
+<p><code>GetThumbnailImage</code>获取缩略图。</p>
