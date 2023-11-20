@@ -1,0 +1,30 @@
+<p>记录一个<code>Header</code>无法被添加进<code>response</code>的大坑。</p>
+<p>平时似乎没怎么注意。</p>
+<p>这样是不行的：</p>
+<textarea class="codeTextarea">
+byte[] buffer = Encoding.UTF8.GetBytes(ImageOperation.ChangeImageToString(ImageToByte(PartImage.ExtractRegionFromImage(ScreenShot(), change[0]))));
+response.ContentLength64 = buffer.Length;
+response.OutputStream.Write(buffer, 0, buffer.Length);
+
+response.Headers.Set("Change", "1");
+response.Headers.Set("X", change[0].X.ToString());
+response.Headers.Set("Y", change[0].Y.ToString());
+response.Headers.Set("W", change[0].Width.ToString());
+response.Headers.Set("H", change[0].Height.ToString());
+</textarea>
+<p>得这样：</p>
+<textarea class="codeTextarea">
+response.Headers.Set("Change", "1");
+response.Headers.Set("X", change[0].X.ToString());
+response.Headers.Set("Y", change[0].Y.ToString());
+response.Headers.Set("W", change[0].Width.ToString());
+response.Headers.Set("H", change[0].Height.ToString());
+
+
+byte[] buffer = Encoding.UTF8.GetBytes(ImageOperation.ChangeImageToString(ImageToByte(PartImage.ExtractRegionFromImage(ScreenShot(), change[0]))));
+response.ContentLength64 = buffer.Length;
+response.OutputStream.Write(buffer, 0, buffer.Length);
+</textarea>
+
+
+<b>坑！要先写入Header。</b>
