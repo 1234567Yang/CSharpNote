@@ -11,3 +11,4 @@ HttpClientBasicReceive|C# 网络HttpClient 接收数据 详解|2023.10.7
 HttpClientAdvanceSend|C# 网络HttpClient 发送数据 高级用法|2023.10.10
 ScreenshotBasic|C# 截图|2023.10.14
 LibraryUse|添加共享项目DLL调用问题|2023.10.28
+HttpListenerTips1|HttpListener无法添加自定义响应头的坑|2023.11.19
