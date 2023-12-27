@@ -102,3 +102,11 @@ blockquote::before{
     margin-top: calc(var(--footer-height) * -1px);
     height: var(--footer-height);
 }
+
+.bigFont{
+    font-size: calc(1em + 8px);
+    font-weight: bold;
+}
+.smallFont{
+    font-size: calc(1em - 8px);
+}
