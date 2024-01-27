@@ -1,0 +1,15 @@
+<p>比如这段代码：</p>
+<textarea class="codeTextarea">
+public event EventHandler<MouseHookEventArgs>? MousePressed;
+</textarea>
+里面使用了个提前构建好的事件，类似于：
+<textarea class="codeTextarea">
+public delegate void MousePressedHandler(object sender, EventArgs e);
+public event MousePressedHandler MousePressed;
+</textarea>
+
+<p>加泛型的话：</p>
+<textarea class="codeTextarea">
+public delegate void MousePressedHandler<TEventArgs>(object sender, TEventArgs e) where TEventArgs : EventArgs;
+public event MousePressedHandler<MouseHookEventArgs> MousePressed;        
+</textarea>
