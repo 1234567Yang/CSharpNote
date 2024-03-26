@@ -23,14 +23,14 @@ public static void HttpClientCookieExample()
 
 <br><br><br>
 <ul>
-    <li>然后是设置协议头: </li>
+    <li>然后是设置Token: </li>
 </ul>
-<p>两种方式，先解释一种爆栗版本：</p>
+<p>两种方式，先解释一种暴力版本：</p>
 <textarea class="codeTextarea">
 client.DefaultRequestHeaders.Add("Authorization", "Bearer YourToken");
 </textarea>
 <p><code>YourToken</code>直接替换成别的，<code>Bearer + 一个空格</code>保留。</p>
-<p>为啥爆栗？</p>
+<p>为啥暴力？</p>
 <blockquote cite="chat.bing.com">
     这种方式直接将"Bearer YourToken"作为值添加到"Authorization"头中。这种方法可能会导致格式错误，因为如果你已经有一个名为"Authorization"的头，那么再次添加会抛出异常
 </blockquote>
